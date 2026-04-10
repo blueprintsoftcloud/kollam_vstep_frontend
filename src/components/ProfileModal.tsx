@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { getToken } from "../utils/auth";
+import { apiFetch } from "../utils/api";
 import Notification, { type NotificationType } from "./Notification";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -81,7 +82,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
         return;
       }
 
-      const response = await fetch("/api/admin/profile", {
+      const response = await apiFetch("/api/admin/profile", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -147,6 +148,16 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
       setIsEditing(false);
       setProfile(initialData || null);
       setIsLoading(!initialData);
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setPasswordErrors({});
+      setShowChangePassword(false);
+      setShowCurrentPassword(false);
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
     }
   }, [isOpen, initialData]);
 
@@ -185,7 +196,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
         return;
       }
 
-      const response = await fetch("/api/admin/profile", {
+      const response = await apiFetch("/api/admin/profile", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -278,7 +289,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
         return;
       }
 
-      const response = await fetch("/api/admin/change-password", {
+      const response = await apiFetch("/api/admin/change-password", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

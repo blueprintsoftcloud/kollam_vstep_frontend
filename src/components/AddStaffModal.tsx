@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getToken } from '../utils/auth';
+import { apiFetch } from '../utils/api';
 import Notification, { type NotificationType } from './Notification';
 
 interface AddStaffModalProps {
@@ -110,7 +111,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       }
 
       // Call the backend API
-      const response = await fetch('/api/staff', {
+      const response = await apiFetch('/api/staff', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

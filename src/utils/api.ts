@@ -1,6 +1,8 @@
 import { getToken, clearToken } from './auth';
 import toast from 'react-hot-toast';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -12,6 +14,7 @@ export async function apiRequest<T = any>(
   url: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
+  const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
   const token = getToken();
 
   const defaultHeaders: Record<string, string> = {
@@ -31,7 +34,7 @@ export async function apiRequest<T = any>(
   };
 
   try {
-    const response = await fetch(url, config);
+    const response = await fetch(fullUrl, config);
     const status = response.status;
 
     // Only treat 401 as session expired if we have a token (meaning we're authenticated)
@@ -65,18 +68,8 @@ export async function apiRequest<T = any>(
   }
 }
 
-// Convenience methods
-export const api = {
-  get: <T = any>(url: string) => apiRequest<T>(url),
-  post: <T = any>(url: string, data?: any) => apiRequest<T>(url, {
-    method: 'POST',
-    body: data ? JSON.stringify(data) : undefined,
-  }),
-  put: <T = any>(url: string, data?: any) => apiRequest<T>(url, {
-    method: 'PUT',
-    body: data ? JSON.stringify(data) : undefined,
-  }),
-  delete: <T = any>(url: string) => apiRequest<T>(url, {
-    method: 'DELETE',
-  }),
+// Convenience fetch wrapper with base URL
+export const apiFetch = (url: string, options: RequestInit = {}) => {
+  const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+  return fetch(fullUrl, options);
 };

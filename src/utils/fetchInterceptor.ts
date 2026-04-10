@@ -1,6 +1,20 @@
 import toast from 'react-hot-toast';
 import { clearToken, getToken } from './auth';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
+function getFullUrl(input: RequestInfo | URL): string {
+  if (typeof input === 'string') {
+    return input.startsWith('/api') ? `${API_BASE_URL}${input}` : input;
+  }
+
+  if (input instanceof URL) {
+    return input.pathname.startsWith('/api') ? `${API_BASE_URL}${input.pathname}${input.search}` : input.toString();
+  }
+
+  return input.url;
+}
+
 /**
  * Installs a global fetch interceptor that handles 401s as session expiration.
  *
@@ -14,12 +28,12 @@ export function initFetchInterceptor() {
   const originalFetch = window.fetch.bind(window);
 
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-    const response = await originalFetch(input, init);
+    const requestUrl = getFullUrl(input);
+    const response = await originalFetch(requestUrl, init);
 
     // Only consider 401 when we have an auth token (meaning user was logged in).
     // Ignore login endpoint so wrong credentials don't trigger redirect.
     const token = getToken();
-    const requestUrl = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
 
     if (response.status === 401 && token && !requestUrl.includes('/login')) {
       clearToken();

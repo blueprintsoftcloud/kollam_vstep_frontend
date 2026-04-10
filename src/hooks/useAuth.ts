@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getToken, isTokenValid, clearToken } from '../utils/auth';
+import { apiFetch } from '../utils/api';
 
 export type AuthState = {
   isAuthenticated: boolean;
@@ -37,7 +38,7 @@ export function useAuth() {
         // Optionally verify token with backend for extra security
         // This ensures the token is still valid on the server side
         try {
-          const response = await fetch('/api/admin/verify', {
+          const response = await apiFetch('/api/admin/verify', {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
