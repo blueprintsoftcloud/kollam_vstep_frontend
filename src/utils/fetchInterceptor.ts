@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 import { clearToken, getToken } from './auth';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 function getFullUrl(input: RequestInfo | URL): string {
   if (typeof input === 'string') {

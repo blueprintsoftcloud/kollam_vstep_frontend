@@ -1,7 +1,7 @@
 import { getToken, clearToken } from './auth';
 import toast from 'react-hot-toast';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export interface ApiResponse<T = any> {
   success: boolean;
