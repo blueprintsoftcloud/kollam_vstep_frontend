@@ -1,0 +1,51 @@
+name: Build & Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout frontend repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        run: npm run build
+        env:
+          # Empty = same origin as backend (app.vstepconsultancy.com)
+          VITE_API_BASE_URL: ''
+
+      - name: Checkout backend repo
+        uses: actions/checkout@v4
+        with:
+          repository: blueprintsoftcloud/kollam_vstep_backend
+          token: ${{ secrets.BACKEND_DEPLOY_TOKEN }}
+          path: backend-repo
+
+      - name: Copy build output to backend client/
+        run: |
+          rm -rf backend-repo/client
+          cp -r dist backend-repo/client
+
+      - name: Commit and push to backend
+        run: |
+          cd backend-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add client/
+          # Only commit if something actually changed
+          git diff --staged --quiet || git commit -m "chore: update frontend build [skip ci]"
+          git push
